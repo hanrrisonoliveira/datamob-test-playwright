@@ -1,0 +1,52 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # gatilho manual = workflow_dispatch
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Testes (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      # Um navegador falhar não cancela os outros: o relatório de todos fica disponível.
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+
+    #passos do job
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      #instalação de dependências
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar navegador ${{ matrix.project }}
+        run: npx playwright install --with-deps ${{ matrix.project }}
+
+      #execução dos testes
+      - name: Executar testes
+        run: npx playwright test --project=${{ matrix.project }}
+
+      # Roda mesmo se os testes falharem, para a evidência da falha ficar disponível.
+      - name: Publicar relatório HTML
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 30
