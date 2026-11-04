@@ -6,6 +6,7 @@ export class LoginPage {
     readonly passwordInput: Locator;
     readonly loginButton: Locator;
     readonly loginTitle: Locator;
+    readonly loginErrorMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -13,6 +14,7 @@ export class LoginPage {
         this.passwordInput = page.locator('[data-qa="login-password"]');
         this.loginButton = page.getByRole('button', {name: 'Login'});
         this.loginTitle = page.getByText('Login to your account');
+        this.loginErrorMessage = page.getByText('Your email or password is incorrect!');
     }
 
     async preencherLogin(email: string, senha: string) {
@@ -26,5 +28,9 @@ export class LoginPage {
 
     async validarTelaLogin() {
         await expect(this.loginTitle).toBeVisible();
+    }
+
+    async validarMensagemErroLogin() {
+        await expect(this.loginErrorMessage).toBeVisible();
     }
 }
