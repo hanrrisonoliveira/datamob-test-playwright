@@ -31,6 +31,7 @@ Os cenários seguem a lista oficial do site: <https://automationexercise.com/tes
 ├── src/
 │   ├── api/UserApi.ts        # Criação, verificação de login e exclusão de usuários via API
 │   ├── data/users.ts         # Gerador de usuários com dados aleatórios (Faker)
+│   ├── fixtures/fixtures.ts  # Fixtures customizadas que injetam Page Objects e UserApi nos testes
 │   ├── pages/                # Page Objects
 │   │   ├── HomePage.ts
 │   │   ├── LoginPage.ts
@@ -44,6 +45,19 @@ Os cenários seguem a lista oficial do site: <https://automationexercise.com/tes
 ### Organização
 
 - **Page Object Model:** cada tela é uma classe em `src/pages/`, com os locators e as ações dela. Os testes só descrevem o fluxo; se um seletor mudar, a correção fica em um único lugar.
+- **Fixtures customizadas:** `src/fixtures/fixtures.ts` estende o `test` do Playwright (`test.extend`) e cria `homePage`, `loginPage`, `accountDeletedPage` e `userApi`. Os testes importam `test` e `expect` desse arquivo e recebem as instâncias prontas nos parâmetros, sem precisar instanciar nada:
+
+  ```ts
+  import { test, expect } from '../src/fixtures/fixtures';
+
+  test('exemplo', async ({ page, homePage, loginPage }) => {
+      await page.goto('/');
+      await homePage.acessarLogin();
+      await loginPage.validarTelaLogin();
+  });
+  ```
+
+  Para disponibilizar um novo Page Object, basta adicionar o tipo e a entrada correspondente no `base.extend` desse arquivo.
 - **Preparação de dados via API:** os cenários que precisam de um usuário cadastrado criam a conta por `POST /api/createAccount` antes do teste, sem depender do formulário de cadastro. O Test Case 4 também apaga a conta via API (`DELETE /api/deleteAccount`) ao final.
 - **Massa de teste isolada:** cada execução gera um usuário novo, com e-mail único (`crypto.randomUUID()`). Por isso os testes podem rodar em paralelo sem disputar a mesma conta.
 

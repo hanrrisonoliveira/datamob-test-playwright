@@ -1,17 +1,8 @@
-import { test, expect } from '@playwright/test';
-import { HomePage } from '../src/pages/HomePage';
-import { LoginPage } from '../src/pages/LoginPage';
-import { AccountDeletedPage } from '../src/pages/AccountDeletedPage';
-import { UserApi } from '../src/api/UserApi';
+import { test, expect } from '../src/fixtures/fixtures';
 import { gerarUsuario } from '../src/data/users';
 
 test.describe('Test Case 2: Login User with correct email and password', () => {
-    test('Deve realizar login com sucesso e excluir a conta', async ({ page, request }) => {
-
-        const homePage = new HomePage(page);
-        const loginPage = new LoginPage(page);
-        const accountDeletedPage = new AccountDeletedPage(page);
-        const userApi = new UserApi(request);
+    test('Deve realizar login com sucesso e excluir a conta', async ({ page, homePage, loginPage, accountDeletedPage, userApi }) => {
         const usuario = gerarUsuario();
 
         await userApi.criarUsuario(usuario);
@@ -29,10 +20,7 @@ test.describe('Test Case 2: Login User with correct email and password', () => {
 });
 
 test.describe('Test Case 3: Login User with incorrect email and password', () => {
-    test('Deve exibir erro ao logar com e-mail e senha incorretos', async ({ page }) => {
-
-        const homePage = new HomePage(page);
-        const loginPage = new LoginPage(page);
+    test('Deve exibir erro ao logar com e-mail e senha incorretos', async ({ page, homePage, loginPage }) => {
 
         await page.goto('/');
         await homePage.validarHomePage();
@@ -49,11 +37,7 @@ test.describe('Test Case 3: Login User with incorrect email and password', () =>
 });
 
 test.describe('Test Case 4: Logout User', () => {
-    test('Deve realizar logout com sucesso', async ({ page, request }) => {
-
-        const homePage = new HomePage(page);
-        const loginPage = new LoginPage(page);
-        const userApi = new UserApi(request);
+    test('Deve realizar logout com sucesso', async ({ page, homePage, loginPage, userApi }) => {
         const usuario = gerarUsuario();
 
         await userApi.criarUsuario(usuario);
